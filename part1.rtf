@@ -1,0 +1,53 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2513
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 HelveticaNeue;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\deftab560
+\pard\pardeftab560\slleading20\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 CREATE SCHEMA Store;\
+use store;\
+CREATE TABLE Products(\
+    product_id int PRIMARY KEY ,\
+    product_name varchar(255),\
+    price int,\
+    categoray_id int\
+);\
+\
+CREATE TABLE Categories(\
+    categoray_id int PRIMARY KEY ,\
+    categoray_name varchar(255)\
+                   );\
+ALTER TABLE Products ADD constraint fk_categoray_id foreign key Products(categoray_id)references Categories(categoray_id)\
+\
+INSERT INTO Categories(categoray_id, categoray_name) VALUES (1,'Electronics');\
+INSERT INTO Categories(categoray_id, categoray_name) VALUES (2,'Clothing');\
+INSERT INTO Categories(categoray_id, categoray_name) VALUES (3,'Home');\
+\
+insert into Products(product_id, product_name, price, categoray_id) values (1,'iphone 12',799,1);\
+insert into Products(product_id, product_name, price, categoray_id) values (2,'Samsung Galaxy',899,1);\
+insert into Products(product_id, product_name, price, categoray_id) values (3,'MacBook',1299,1);\
+insert into Products(product_id, product_name, price, categoray_id) values (4,'Nike Air Max',99,2);\
+insert into Products(product_id, product_name, price, categoray_id) values (5,'Levis Jeans',59,2);\
+insert into Products(product_id, product_name, price, categoray_id) values (6,'Sofa',499,3);\
+insert into Products(product_id, product_name, price, categoray_id) values (7,'Dining Table',899,3);\
+SELECT * from Products;\
+SELECT * from Products where categoray_id=2;\
+SELECT *from Products where price<100;\
+UPDATE Products SET price =1399 WHERE product_name='MacBook';\
+DELETE from Products where product_name='Dining Table';\
+SELECT product_name,price from Products where categoray_id=1;\
+SELECT product_name from Products where price>500;\
+SELECT  product_name,price from Products  order by price desc limit 3;\
+UPDATE Products SET price=price*1.1 where categoray_id=2;\
+DELETE from Products where price<50;\
+SELECT  price,product_name from Products order by price desc ;\
+SELECT p.product_name, c.categoray_name\
+FROM Products p\
+         JOIN Categories c ON p.categoray_id = c.categoray_id\
+ORDER BY c.categoray_name ASC;\
+DELETE FROM Products where categoray_id=3;\
+SELECT product_name,price from Products where price>100 and price<500;\
+UPDATE Products set price=price* 0.95 where categoray_id=1;\
+}

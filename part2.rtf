@@ -1,0 +1,263 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2513
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 HelveticaNeue-Bold;\f1\fnil\fcharset0 HelveticaNeue;\f2\fnil\fcharset0 HelveticaNeue-Italic;
+}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\deftab560
+\pard\pardeftab560\partightenfactor0
+
+\f0\b\fs34 \cf0 Part 2 \
+\pard\pardeftab560\slleading20\pardirnatural\partightenfactor0
+
+\f1\b0\fs24 \cf0 \
+\
+CREATE SCHEMA part2;\
+use part2;\
+CREATE TABLE Hotel(\
+    hotelNo int PRIMARY KEY ,\
+    hotelName varchar(255),\
+    city varchar(255)\
+);\
+\
+\
+CREATE TABLE Room(\
+    roomNo int  ,\
+    hotelNo int,\
+    type varchar(255),\
+    price int,\
+     primary key (roomNo,hotelNo)\
+                   );\
+ALTER TABLE Room ADD constraint fk_hotel_No foreign key Room(hotelNo)references Hotel(hotelNo);\
+\
+\
+CREATE TABLE Guest(\
+                        guestNo int primary key ,\
+                        guestName varchar(255),\
+                        guestAddress varchar(255)\
+);\
+CREATE TABLE Booking(\
+\
+                        dateFrom varchar(255) ,\
+                        roomNo int,\
+                        dateTo varchar(255),\
+                        hotelNo int,\
+                        guestNo int ,\
+                        primary key (hotelNo,guestNo,dateFrom)\
+\
+);\
+ALTER TABLE Booking add constraint fk_hotel_no_bk foreign key Booking(hotelNo) references Hotel(hotelNo);\
+ALTER TABLE Booking ADD constraint fk_guest_no foreign key Booking(guestNo)references Guest(guestNo);\
+\
+INSERT INTO Hotel (hotelNo, hotelName, city)\
+VALUES (1, 'Grand Hotel', 'New York'),\
+       (2, 'Beach Resort', 'Miami'),\
+       (3, 'Mountain Lodge', 'Denver');\
+\
+-- Insert some data into the Room table\
+INSERT INTO Room (roomNo, hotelNo, type, price)\
+VALUES (101, 1, 'Standard', 100),\
+       (102, 1, 'Deluxe', 150),\
+       (201, 2, 'Standard', 75),\
+       (202, 2, 'Deluxe', 125),\
+       (301, 3, 'Standard', 80),\
+       (302, 3, 'Deluxe', 130);\
+\
+-- Insert some data into the Guest table\
+INSERT INTO Guest (guestNo, guestName, guestAddress)\
+VALUES (1, 'John Smith', '123 Main St'),\
+       (2, 'Jane Doe', '456 Oak Ave'),\
+       (3, 'Bob Johnson', '789 Elm St');\
+\
+-- Insert some data into the Booking table\
+INSERT INTO Booking (dateFrom, roomNo, dateTo, hotelNo, guestNo)\
+VALUES ('2023-06-01', 101, '2023-06-07', 1, 1),\
+       ('2023-07-01', 201, '2023-07-07', 2, 2),\
+       ('2023-08-01', 301, '2023-08-07', 3, 3),\
+       ('2023-06-01', 102, '2023-06-07', 1, 2),\
+       ('2023-07-01', 202, '2023-07-07', 2, 3),\
+       ('2023-08-01', 302, '2023-08-07', 3, 1);\
+\
+\
+select * from Hotel;\
+\
+\
+select * from Hotel where hotelName='london';\
+\
+\
+select guestName,guestAddress from Guest INNER JOIN Booking ON Guest.guestNo = Booking.guestNo\
+INNER JOIN Hotel ON Booking.hotelNo = Hotel.hotelNo\
+WHERE city = 'London'\
+ORDER BY guestName ASC;\
+\
+\
+SELECT * FROM Room WHERE type IN ('double', 'family') AND price < 40 ORDER BY price ASC;\
+\
+\
+SELECT * FROM Booking WHERE dateTo IS NULL;\
+\
+\
+SELECT 
+\f2\i COUNT
+\f1\i0 (*) FROM Hotel;\
+\
+\
+SELECT 
+\f2\i AVG
+\f1\i0 (price) FROM Room;\
+\
+\
+SELECT 
+\f2\i SUM
+\f1\i0 (price) as total_revenue\
+FROM Room\
+WHERE type = 'double';\
+\
+\
+SELECT 
+\f2\i COUNT
+\f1\i0 (DISTINCT guestNo) AS num_guests\
+FROM Booking\
+WHERE dateFrom LIKE '2023-08-%';\
+\
+\
+SELECT Guest.guestName\
+FROM Guest\
+         INNER JOIN Booking ON Guest.guestNo = Booking.guestNo\
+         INNER JOIN Room ON Booking.hotelNo = Room.hotelNo AND Booking.roomNo = Room.roomNo\
+WHERE Room.hotelNo = 1 AND Booking.dateTo IS NULL;\
+\
+\
+SELECT Room.roomNo, Room.type, Room.price, Guest.guestName\
+FROM Room\
+         LEFT JOIN Booking ON Room.hotelNo = Booking.hotelNo AND Room.roomNo = Booking.roomNo AND Booking.dateTo IS NULL\
+         LEFT JOIN Guest ON Booking.guestNo = Guest.guestNo\
+WHERE Room.hotelNo = 1;\
+\
+\
+SELECT 
+\f2\i SUM
+\f1\i0 (Room.price) as total_income\
+FROM Room\
+         INNER JOIN Booking ON Room.hotelNo = Booking.hotelNo AND Room.roomNo = Booking.roomNo\
+WHERE Room.hotelNo = 1 AND Booking.dateFrom = '2023-05-05' AND Booking.dateTo IS NULL;\
+\
+\
+SELECT Room.roomNo, Room.type, Room.price\
+FROM Room\
+         LEFT JOIN Booking ON Room.hotelNo = Booking.hotelNo AND Room.roomNo = Booking.roomNo AND Booking.dateTo IS NULL\
+WHERE Room.hotelNo = 1 AND Booking.hotelNo IS NULL;\
+\
+\
+SELECT 
+\f2\i SUM
+\f1\i0 (Room.price)\
+FROM Room\
+WHERE Room.hotelNo = (SELECT hotelNo FROM Hotel WHERE hotelName = 'Grosvenor Hotel')\
+  AND Room.roomNo NOT IN (SELECT roomNo FROM Booking WHERE hotelNo = (SELECT hotelNo FROM Hotel WHERE hotelName = 'Grosvenor Hotel') AND dateTo >= 
+\f2\i CURDATE
+\f1\i0 ());\
+\
+\
+\
+SELECT hotelNo, 
+\f2\i COUNT
+\f1\i0 (*) AS num_rooms\
+FROM Room\
+GROUP BY hotelNo;\
+\
+\
+SELECT Hotel.hotelName, 
+\f2\i COUNT
+\f1\i0 (*) AS num_rooms\
+FROM Hotel\
+         INNER JOIN Room ON Hotel.hotelNo = Room.hotelNo\
+WHERE Hotel.city = 'London'\
+GROUP BY Hotel.hotelNo;\
+\
+\
+SELECT Hotel.hotelName, 
+\f2\i AVG
+\f1\i0 (num_bookings) AS avg_bookings\
+FROM (\
+         SELECT hotelNo, dateFrom, 
+\f2\i COUNT
+\f1\i0 (*) AS num_bookings\
+         FROM Booking\
+         GROUP BY hotelNo, dateFrom\
+     ) AS booking_count\
+         INNER JOIN Hotel ON booking_count.hotelNo = Hotel.hotelNo\
+WHERE dateFrom LIKE '%-08-%'\
+GROUP BY Hotel.hotelNo;\
+\
+\
+SELECT Hotel.hotelName, Room.type, 
+\f2\i COUNT
+\f1\i0 (*) AS num_bookings\
+FROM Hotel\
+         INNER JOIN Room ON Hotel.hotelNo = Room.hotelNo\
+         INNER JOIN Booking ON Room.hotelNo = Booking.hotelNo AND Room.roomNo = Booking.roomNo\
+WHERE Hotel.city = 'London'\
+GROUP BY Hotel.hotelNo, Room.type\
+HAVING 
+\f2\i COUNT
+\f1\i0 (*) = (\
+    SELECT 
+\f2\i MAX
+\f1\i0 (num_bookings)\
+    FROM (\
+             SELECT Hotel.hotelNo, Room.type, 
+\f2\i COUNT
+\f1\i0 (*) AS num_bookings\
+             FROM Hotel\
+                      INNER JOIN Room ON Hotel.hotelNo = Room.hotelNo\
+                      INNER JOIN Booking ON Room.hotelNo = Booking.hotelNo AND Room.roomNo = Booking.roomNo\
+             WHERE Hotel.city = 'London'\
+             GROUP BY Hotel.hotelNo, Room.type\
+         ) AS subquery\
+    WHERE subquery.hotelNo = Hotel.hotelNo\
+);\
+\
+\
+SELECT 
+\f2\i SUM
+\f1\i0 (Room.price) AS lost_income\
+FROM Room\
+         LEFT JOIN Booking ON Room.roomNo = Booking.roomNo AND Room.hotelNo = Booking.hotelNo\
+WHERE Booking.dateFrom IS NULL AND Room.hotelNo = 1;\
+\
+\
+SELECT Hotel.hotelName, 
+\f2\i SUM
+\f1\i0 (Room.price) AS lost_income\
+FROM Hotel\
+         JOIN Room ON Hotel.hotelNo = Room.hotelNo\
+         LEFT JOIN Booking ON Room.roomNo = Booking.roomNo AND Room.hotelNo = Booking.hotelNo\
+WHERE Booking.dateFrom IS NULL\
+GROUP BY Hotel.hotelNo;\
+\
+\
+INSERT INTO Hotel (hotelNo, hotelName, city)\
+VALUES (101, 'New Hotel', 'London');\
+\
+INSERT INTO Room (roomNo, hotelNo, type, price)\
+VALUES (10, 101, 'Single', 50);\
+\
+\
+INSERT INTO Guest (guestNo, guestName, guestAddress)\
+VALUES (1001, 'John Smith', '123 Main Street, London');\
+\
+\
+INSERT INTO Booking (dateFrom, roomNo, dateTo, hotelNo, guestNo)\
+VALUES ('2023-05-15', 10, '2023-05-20', 101, 1001);\
+\
+\
+\
+UPDATE Room\
+SET price = price * 1.05;\
+\
+\
+\
+\
+\
+}
